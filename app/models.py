@@ -46,33 +46,7 @@ class ControlFactory:
     @staticmethod
     def create_control_dto(data: dict) -> ControlDTO:
         return ControlDTO(**data)
-
-
-class ControlService:
-    def __init__(self, repository: 'TaskControlRepository'):
-        self.repository = repository
-
-    def get_all_controls(self):
-        return self.repository.get_all()
-
-    def get_control_by_id(self, control_id: int):
-        return self.repository.get_by_id(control_id)
-
-    def create_control(self, control_data: dict):
-        control_vo = ControlFactory.create_control_vo(control_data)
-        return self.repository.create(control_vo)
-
-    def update_control(self, control_id: int, control_data: dict):
-        return self.repository.update(control_id, control_data)
-
-    def delete_control(self, control_id: int):
-        control = self.repository.get_by_id(control_id)
-        if control:
-            self.repository.delete(control)
-            return True
-        return False
-
-
+    
 class TaskControlRepository:
     def __init__(self, db: Session):
         self.db = db

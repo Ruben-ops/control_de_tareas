@@ -12,13 +12,13 @@ app = FastAPI()
 @app.post("/api/v1/controls/", response_model=ControlDTO)
 def create_control(control: ControlDTO, db: Session = Depends(get_db)):
     with UnitOfWork(db) as uow:
-        command = CreateControlCommand(control.dict(), uow.control_repository)
+        command = CreateControlCommand(control.model_dump(), uow.control_repository)
         return command.execute()
 
 @app.put("/api/v1/controls/{control_id}", response_model=ControlDTO)
 def update_control(control_id: int, control_data: ControlDTO, db: Session = Depends(get_db)):
     with UnitOfWork(db) as uow:
-        command = UpdateControlCommand(control_id, control_data.dict(), uow.control_repository)
+        command = UpdateControlCommand(control_id, control_data.model_dump(), uow.control_repository)
         return command.execute()
 
 @app.delete("/api/v1/controls/{control_id}")
