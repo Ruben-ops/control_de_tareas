@@ -44,9 +44,4 @@ class DeleteControlCommand(Command):
         else:
             raise HTTPException(status_code=404, detail="Control not found")
 
-class ControlInvoker:
-    def __init__(self, command: Command):
-        self._command = command
 
-    def execute_command(self):
-        return self._command.execute()
