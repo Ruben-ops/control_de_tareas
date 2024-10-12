@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.routers import tasks, users
-from app.database import engine, Base
+from .routers import tasks, users
+from .database import engine, Base
 
 app = FastAPI()
 

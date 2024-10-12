@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
-from app.database import Database
-from app.models import Professor, Student
+from .database import Database
+from .models import Professor, Student
 
 def get_db():
     db = Database.get_session()()

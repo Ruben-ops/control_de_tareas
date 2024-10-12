@@ -1,4 +1,4 @@
-from app.notification_strategy import NotificationStrategy, EmailNotificationStrategy, SMSNotificationStrategy, PushNotificationStrategy
+from .notification_strategy import NotificationStrategy, EmailNotificationStrategy, SMSNotificationStrategy, PushNotificationStrategy
 
 class NotificationService:
     def __init__(self, strategy: NotificationStrategy):
