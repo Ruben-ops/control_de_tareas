@@ -1,6 +1,11 @@
 from fastapi import FastAPI
-from app.endpoints import router as control_router  
+from app.routers import tasks, users
+from app.database import engine, Base
 
 app = FastAPI()
 
-app.include_router(control_router, prefix="/api/v1")
+Base.metadata.create_all(bind=engine)
+
+app.include_router(tasks.router)
+app.include_router(users.router)
+

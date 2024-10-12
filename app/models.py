@@ -1,75 +1,39 @@
-from sqlalchemy import Column, Integer, String, Date
-from sqlalchemy.orm import declarative_base
-from pydantic import BaseModel
-from typing import Optional
-from datetime import date
-from sqlalchemy.orm import Session
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+from app.database import Base
 
-Base = declarative_base()
+class Task(Base):
+    __tablename__ = "tasks"
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String)
+    due_date = Column(DateTime)
+    professor_id = Column(Integer, ForeignKey("professors.id"))
 
+    professor = relationship("Professor", back_populates="tasks")
+    followups = relationship("Followup", back_populates="task")
 
-class ControlVO(Base):
-    __tablename__ = 'control'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    task_reference = Column(String(50), nullable=False)
-    alum_reference = Column(String(50), nullable=False)
-    control_date = Column(Date, nullable=True)
-    work_done_quantity_valuation = Column(Integer, nullable=False)
-    work_done_quantity_comment = Column(String, nullable=False)
-    work_load_valuation = Column(Integer, nullable=False)
-    work_load_comment = Column(String, nullable=False)
-    difficult_valuation = Column(Integer, nullable=False)
-    difficult_comment = Column(String, nullable=False)
+class Followup(Base):
+    __tablename__ = "followups"
+    id = Column(Integer, primary_key=True, index=True)
+    task_id = Column(Integer, ForeignKey("tasks.id"))
+    student_id = Column(Integer, ForeignKey("students.id"))
+    work_done = Column(String)
+    difficulty_rating = Column(Integer)
+    comments = Column(String)
 
+    task = relationship("Task", back_populates="followups")
+    student = relationship("Student", back_populates="followups")
 
-class ControlDTO(BaseModel):
-    id: Optional[int]
-    task_reference: str
-    alum_reference: str
-    control_date: Optional[date]
-    work_done_quantity_valuation: int
-    work_done_quantity_comment: str
-    work_load_valuation: int
-    work_load_comment: str
-    difficult_valuation: int
-    difficult_comment: str
+class Professor(Base):
+    __tablename__ = "professors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    tasks = relationship("Task", back_populates="professor")
 
-    class Config:
-        from_atributtes = True  
+class Student(Base):
+    __tablename__ = "students"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    followups = relationship("Followup", back_populates="student")
 
-
-class ControlFactory:
-    @staticmethod
-    def create_control_vo(data: dict) -> ControlVO:
-        return ControlVO(**data)
-
-    @staticmethod
-    def create_control_dto(data: dict) -> ControlDTO:
-        return ControlDTO(**data)
-    
-class TaskControlRepository:
-    def __init__(self, db: Session):
-        self.db = db
-
-    def get_all(self):
-        return self.db.query(ControlVO).all()
-
-    def get_by_id(self, control_id: int):
-        return self.db.query(ControlVO).filter(ControlVO.id == control_id).first()
-
-    def create(self, control: ControlVO):
-        self.db.add(control)
-        self.db.commit()
-        self.db.refresh(control)
-        return control
-
-    def delete(self, control: ControlVO):
-        self.db.delete(control)
-        self.db.commit()
-
-    def update(self, control_id: int, control_data: dict):
-        control = self.get_by_id(control_id)
-        for key, value in control_data.items():
-            setattr(control, key, value)
-        self.db.commit()
-        return control

@@ -1,22 +1,24 @@
 from sqlalchemy.orm import Session
-from .models import TaskControlRepository
+from fastapi import Depends, HTTPException, status
+from app.database import Database
+from app.models import Professor, Student
 
-class UnitOfWork:
-    def __init__(self, db: Session):
-        self.db = db
-        self.control_repository = TaskControlRepository(db)
+def get_db():
+    db = Database.get_session()()
+    try:
+        yield db
+    finally:
+        db.close()
 
-    def commit(self):
-        self.db.commit()
+def get_current_professor(db: Session = Depends(get_db), professor_id: int = 1):
+    professor = db.query(Professor).filter(Professor.id == professor_id).first()
+    if professor is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Professor not found")
+    return professor
 
-    def rollback(self):
-        self.db.rollback()
+def get_current_student(db: Session = Depends(get_db), student_id: int = 1):
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if student is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student not found")
+    return student
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            self.commit()
-        else:
-            self.rollback()
