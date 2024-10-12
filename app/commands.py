@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from fastapi import HTTPException
-
+from .models import ControlVO, TaskControlRepository
 class Command(ABC):
     @abstractmethod
     def execute(self):
         pass
 
-from models import ControlVO, TaskControlRepository
 
 
 class CreateControlCommand(Command):
